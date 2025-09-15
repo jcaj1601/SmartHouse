@@ -14,20 +14,28 @@ if "objetivo" not in st.session_state:
 st.write(f"**Objetivo:** {st.session_state['objetivo'].capitalize()}")
 
 # Paso 1: preferencias
-with st.expander("Paso 1 · Presupuesto y necesidades", expanded=True):
+# Paso 1: preferencias
+with st.expander("① Presupuesto y necesidades", expanded=True):
     c1, c2 = st.columns([2,1])
     with c1:
         presupuesto = st.slider("Presupuesto máximo (€)", 120000, 1200000, 350000, 10000)
         habitaciones = st.selectbox("Habitaciones", [1,2,3,4], index=1)
-        prioridades = st.multiselect("Prioridades", ["Precio bajo","Zonas verdes","Transporte","Seguridad","Inversión"], default=["Precio bajo","Transporte"])
+        prioridades = st.multiselect(
+            "Prioridades",
+            ["Precio bajo", "Zonas verdes", "Transporte", "Seguridad", "Inversión"],
+            default=["Precio bajo", "Transporte"],
+        )
         st.write("**Tus prioridades:**")
-        for p in prioridades: chip(p)
+        for p in prioridades:
+            chip(p)
     with c2:
-        st.info("Ajusta prioridades. Te mostraremos zonas que encajan con tu perfil y presupuesto.")
+        st.info(
+            "Ajusta tus prioridades para perfilar la búsqueda. Te mostraremos zonas que encajan con tu perfil y presupuesto."
+        )
 
 # Paso 2: recomendaciones (demo con CSV de distritos_madrid_coords si existe)
 st.markdown("---")
-st.subheader("Paso 2 · Recomendaciones (demo)")
+st.subheader("② Recomendaciones")
 try:
     df = pd.read_csv("data/distritos_madrid_coords.csv")
 except Exception:
@@ -43,24 +51,38 @@ df["score"] = (df["variacion_interanual"].rank(ascending=False) + df["precio_m2"
 df_top = df.sort_values("score").head(3)
 
 cards = st.columns(3)
-for i, (_,row) in enumerate(df_top.iterrows()):
+for i, (_, row) in enumerate(df_top.iterrows()):
     with cards[i]:
-        color = "#3FA34D" if row["variacion_interanual"]>2 else ("#E1A500" if row["variacion_interanual"]>-0.3 else "#AA1927")
-        st.markdown(f"""
-        <div class="card fade-in">
-          <div style="font-size:1.1rem;font-weight:800">{row['distrito']}</div>
-          <div style="font-size:1.5rem;font-weight:800">{int(row['precio_m2']):,} €/m²</div>
-          <div style="color:{color};font-weight:700">{row['variacion_interanual']}% tendencia</div>
-        </div>
-        """, unsafe_allow_html=True)
-        y = np.cumsum(np.random.randn(24))*5 + row["precio_m2"]
-        fig = px.line(x=list(range(24)), y=y, labels={"x":"meses","y":"€/m²"})
-        fig.update_layout(height=120, margin=dict(l=0,r=0,t=0,b=0))
+        # Determine colour of trend (green/up, yellow/flat, red/down)
+        color = (
+            "#3FA34D"
+            if row["variacion_interanual"] > 2
+            else ("#E1A500" if row["variacion_interanual"] > -0.3 else "#AA1927")
+        )
+        # Render a custom card with slide up and incremental delays
+        st.markdown(
+            f"""
+            <div class="district-card slide-up delay-{i+1}">
+              <div class="district-name">{row['distrito']}</div>
+              <div class="district-price">{int(row['precio_m2']):,} €/m²</div>
+              <div class="district-trend" style="color:{color};">{row['variacion_interanual']}% tendencia</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        # Generate a small synthetic trend line for the card below
+        y = np.cumsum(np.random.randn(24)) * 5 + row["precio_m2"]
+        fig = px.line(
+            x=list(range(24)),
+            y=y,
+            labels={"x": "meses", "y": "€/m²"},
+        )
+        fig.update_layout(height=120, margin=dict(l=0, r=0, t=0, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
-# Paso 3.5: Cuándo — Momento ideal con banda (demo de proyección sintética)
+# Paso 3: Cuándo — Momento ideal con banda (demo de proyección sintética)
 st.markdown("---")
-st.subheader("Paso 3 · Momento ideal (demo)")
+st.subheader("③ Momento ideal (demo)")
 sel = st.selectbox("Ver proyección para:", df_top["distrito"].tolist())
 base = float(df.loc[df["distrito"]==sel,"precio_m2"].iloc[0]) if sel in df["distrito"].values else 4000.0
 meses = np.arange(0,24)

@@ -4,16 +4,129 @@
   --brand-green:#3FA34D;
   --brand-red:#AA1927;
   --brand-gray:#F5F5F5;
+  --bg-light:#F7F9FC;
 }
+/* Hide default Streamlit chrome */
 #MainMenu{visibility:hidden;}
 footer{visibility:hidden;}
-.block-container{padding-top:.5rem;}
-.hero{background:linear-gradient(135deg, var(--brand-red), var(--brand-dark)); color:#fff; padding:28px 24px; border-radius:18px; box-shadow:0 12px 28px rgba(0,0,0,.15);}
-.hero h1{margin:0; font-size:1.8rem; font-weight:900;}
-.hero p{margin:.25rem 0 0; opacity:.95;}
-.kpi, .card, .step{background:#fff; border:1px solid #eee; border-radius:18px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,.08); transition: transform .2s ease, box-shadow .2s ease;}
-.kpi:hover, .card:hover, .step:hover{ transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
-.chip{ display:inline-block; padding:6px 12px; border-radius:999px; margin:4px 6px 0 0; background: var(--brand-gray); color:#222; border:1px solid #eaeaea; }
-.fade-in{ animation: fade .3s ease both; } @keyframes fade { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
-.stButton>button{ background: var(--brand-dark); color:#fff; border-radius:12px; border:none; font-weight:700; }
-.stButton>button:hover{ background:#15315f; }
+/* Increase top padding for content */
+.block-container{padding-top:0.5rem;}
+
+/* Global background */
+body { background: linear-gradient(180deg, var(--bg-light) 0%, #FFFFFF 100%) !important; }
+
+/* Hero section with background image overlay */
+.hero {
+  position: relative;
+  color: #fff;
+  padding: 40px 32px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, rgba(27,59,111,0.65), rgba(170,25,39,0.65));
+  pointer-events: none;
+}
+.hero h1 {
+  position: relative;
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  z-index: 1;
+}
+.hero p {
+  position: relative;
+  margin-top: 0.25rem;
+  font-size: 1.1rem;
+  opacity: 0.95;
+  z-index: 1;
+}
+
+/* KPI, card and step containers */
+.kpi, .card, .step {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.kpi:hover, .card:hover, .step:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+/* Chip styling */
+.chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin: 4px 6px 0 0;
+  background: var(--brand-gray);
+  color: #222;
+  border: 1px solid #eaeaea;
+  font-size: 0.85rem;
+}
+
+/* Fade-in animation reused for subtle entrance */
+.fade-in { animation: fade 0.3s ease both; }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Slide-up animation for cards and sections */
+.slide-up { animation: slideUp 0.6s cubic-bezier(.25,.8,.25,1) both; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+
+/* District recommendation card */
+.district-card {
+  background: linear-gradient(160deg, #ffffff 0%, #F9FAFB 100%);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.district-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+.district-card::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at center, var(--brand-dark) 0%, transparent 70%);
+  opacity: 0.05;
+}
+.district-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.2rem; }
+.district-price { font-size: 1.8rem; font-weight: 800; }
+.district-trend { font-weight: 700; }
+
+/* Buttons */
+.stButton>button {
+  background: var(--brand-dark);
+  color: #fff;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  transition: background 0.15s ease;
+}
+.stButton>button:hover {
+  background: #15315f;
+}
+
