@@ -25,24 +25,36 @@ def hero():
     # relative to this file so it works regardless of the current working
     # directory when Streamlit runs. The image lives in ``app/assets``.
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(base_dir, "..", "assets", "hero_background.png")
+    # Use the refreshed hero background to emphasise the new colour palette.
+    image_path = os.path.join(base_dir, "..", "assets", "hero_background_new.png")
     try:
         with open(image_path, "rb") as f:
-            encoded = base64.b64encode(f.read()).decode()
+            encoded_bg = base64.b64encode(f.read()).decode()
         bg_style = (
-            f"background-image: url('data:image/png;base64,{encoded}'); "
+            f"background-image: url('data:image/png;base64,{encoded_bg}'); "
             "background-size: cover; background-position: center;"
         )
     except Exception:
-        # Fallback to the original linear gradient if the image can't be read.
-        bg_style = "background:linear-gradient(135deg, var(--brand-red), var(--brand-dark));"
+        # Fallback to a blue gradient if the image can't be read.
+        bg_style = "background:linear-gradient(135deg, var(--brand-dark), #2171c2);"
+
+    # Load the logo from the assets folder and encode it to base64.
+    logo_path = os.path.join(base_dir, "..", "assets", "logo.png")
+    encoded_logo = ""
+    try:
+        with open(logo_path, "rb") as f:
+            encoded_logo = base64.b64encode(f.read()).decode()
+    except Exception:
+        encoded_logo = ""
 
     # Compose the HTML for the hero. We embed the background style directly
     # into the div. The gradient overlay lives in a child div with its own
-    # class. The braces in the f-string are escaped automatically.
+    # class. If the logo is available, it will be displayed above the heading.
+    logo_html = f"<img src='data:image/png;base64,{encoded_logo}' class='logo' alt='Logo' />" if encoded_logo else ""
     html = f"""
     <div class='hero fade-in' style="{bg_style}">
       <div class='hero-overlay'></div>
+      {logo_html}
       <h1>SmartHousing Madrid</h1>
       <p>Encuentra el mejor lugar, en el mejor momento — con datos.</p>
     </div>

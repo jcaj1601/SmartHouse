@@ -16,18 +16,28 @@ with c4: kpi("Variación anual", "3.2%")
 
 st.markdown("---")
 st.subheader("¿Qué quieres hacer hoy?")
-col1, col2, col3 = st.columns(3)
-with col1:
-    if st.button("🏠 Comprar", use_container_width=True):
-        st.session_state["objetivo"]="comprar"
+
+# Present four large option buttons laid out in two rows. Each button sets
+# the objective and navigates to the corresponding page. The enlarged styling
+# is handled via the CSS defined in assets/style.css.
+row1 = st.columns(2)
+with row1[0]:
+    if st.button("🏠 Comprar\nEncuentra tu hogar", key="buy", use_container_width=True):
+        st.session_state["objetivo"] = "comprar"
         st.switch_page("pages/1_Flujo_Usuario.py")
-with col2:
-    if st.button("📈 Vender", use_container_width=True):
-        st.session_state["objetivo"]="vender"
+with row1[1]:
+    if st.button("📈 Vender\nValora tu propiedad", key="sell", use_container_width=True):
+        st.session_state["objetivo"] = "vender"
         st.switch_page("pages/1_Flujo_Usuario.py")
-with col3:
-    if st.button("🗺️ Explorar barrios", use_container_width=True):
-        st.session_state["objetivo"]="explorar"
+
+row2 = st.columns(2)
+with row2[0]:
+    if st.button("🗺️ Explorar barrios\nDescubre zonas", key="explore", use_container_width=True):
+        st.session_state["objetivo"] = "explorar"
         st.switch_page("pages/1_Flujo_Usuario.py")
+with row2[1]:
+    if st.button("🔬 Vistas avanzadas\nAnálisis profundo", key="advanced_views", use_container_width=True):
+        st.session_state["objetivo"] = "avanzadas"
+        st.switch_page("pages/6_Vistas_Avanzadas.py")
 
 st.caption("Demo visual: sustituye métricas por tus datos agregados 2015–2024.")

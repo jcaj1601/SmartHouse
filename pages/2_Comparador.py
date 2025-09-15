@@ -29,3 +29,7 @@ with c2:
     st.plotly_chart(fig, use_container_width=True)
 
 st.download_button("📥 Descargar comparativa (CSV)", data=dff.to_csv(index=False).encode(), file_name="comparador_distritos.csv")
+
+# Offer a direct link to the advanced views page for deeper analysis.
+if st.button("🔬 Vistas avanzadas", use_container_width=True):
+    st.switch_page("pages/6_Vistas_Avanzadas.py")

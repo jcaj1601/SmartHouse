@@ -1,10 +1,14 @@
 
 :root{
-  --brand-dark:#1B3B6F;
-  --brand-green:#3FA34D;
-  --brand-red:#AA1927;
-  --brand-gray:#F5F5F5;
-  --bg-light:#F7F9FC;
+  /* Primary colour palette for the refreshed UI.
+     We shift the dark brand colour into a deep blue and
+     lighten the backgrounds to emphasise a crisp, blue‑white theme.
+     The green and red accents are preserved for trends/alerts. */
+  --brand-dark:#0B3D91;       /* primary dark blue used for buttons/cards */
+  --brand-green:#3FA34D;      /* positive trend */
+  --brand-red:#AA1927;        /* negative trend */
+  --brand-gray:#F0F5FC;       /* subtle grayish blue used in cards */
+  --bg-light:#E8F2FF;         /* very light blue used in page backgrounds */
 }
 /* Hide default Streamlit chrome */
 #MainMenu{visibility:hidden;}
@@ -13,35 +17,50 @@ footer{visibility:hidden;}
 .block-container{padding-top:0.5rem;}
 
 /* Global background */
-body { background: linear-gradient(180deg, var(--bg-light) 0%, #FFFFFF 100%) !important; }
+/* Global backdrop: soft blue gradient fading into white */
+body {
+  background: linear-gradient(180deg, var(--bg-light) 0%, #FFFFFF 100%) !important;
+}
 
 /* Hero section with background image overlay */
+/* Hero section adjustments: larger, more immersive and uses a blue overlay.
+   The logo will sit on top of the hero content. */
 .hero {
   position: relative;
   color: #fff;
-  padding: 40px 32px;
+  padding: 60px 40px;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+  min-height: 260px;
 }
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom right, rgba(27,59,111,0.65), rgba(170,25,39,0.65));
+  /* Blue gradient overlay for improved contrast */
+  background: linear-gradient(to bottom right, rgba(11,61,145,0.65), rgba(33,99,193,0.65));
   pointer-events: none;
 }
 .hero h1 {
   position: relative;
   margin: 0;
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 900;
   z-index: 1;
 }
 .hero p {
   position: relative;
-  margin-top: 0.25rem;
-  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
   opacity: 0.95;
+  z-index: 1;
+}
+
+/* Logo inside the hero */
+.hero .logo {
+  width: 64px;
+  height: auto;
+  margin-bottom: 16px;
   z-index: 1;
 }
 
@@ -117,16 +136,29 @@ body { background: linear-gradient(180deg, var(--bg-light) 0%, #FFFFFF 100%) !im
 .district-trend { font-weight: 700; }
 
 /* Buttons */
+/* Buttons: enlarged for full‑image style options on the landing page.
+   The height and font size are increased to improve readability and touch targets.
+   All buttons inherit the primary blue colour. */
 .stButton>button {
   background: var(--brand-dark);
   color: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
   font-weight: 700;
-  padding: 0.6rem 1rem;
-  transition: background 0.15s ease;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 .stButton>button:hover {
-  background: #15315f;
+  background: #093E8D;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
+
+/* Option cards can reuse the button style via container width; no explicit class needed. */
 
