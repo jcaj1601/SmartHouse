@@ -1,0 +1,19 @@
+
+:root{
+  --brand-dark:#1B3B6F;
+  --brand-green:#3FA34D;
+  --brand-red:#AA1927;
+  --brand-gray:#F5F5F5;
+}
+#MainMenu{visibility:hidden;}
+footer{visibility:hidden;}
+.block-container{padding-top:.5rem;}
+.hero{background:linear-gradient(135deg, var(--brand-red), var(--brand-dark)); color:#fff; padding:28px 24px; border-radius:18px; box-shadow:0 12px 28px rgba(0,0,0,.15);}
+.hero h1{margin:0; font-size:1.8rem; font-weight:900;}
+.hero p{margin:.25rem 0 0; opacity:.95;}
+.kpi, .card, .step{background:#fff; border:1px solid #eee; border-radius:18px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,.08); transition: transform .2s ease, box-shadow .2s ease;}
+.kpi:hover, .card:hover, .step:hover{ transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
+.chip{ display:inline-block; padding:6px 12px; border-radius:999px; margin:4px 6px 0 0; background: var(--brand-gray); color:#222; border:1px solid #eaeaea; }
+.fade-in{ animation: fade .3s ease both; } @keyframes fade { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+.stButton>button{ background: var(--brand-dark); color:#fff; border-radius:12px; border:none; font-weight:700; }
+.stButton>button:hover{ background:#15315f; }
