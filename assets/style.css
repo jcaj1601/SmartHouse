@@ -1,164 +1,103 @@
-
 :root{
-  /* Primary colour palette for the refreshed UI.
-     We shift the dark brand colour into a deep blue and
-     lighten the backgrounds to emphasise a crisp, blue‑white theme.
-     The green and red accents are preserved for trends/alerts. */
-  --brand-dark:#0B3D91;       /* primary dark blue used for buttons/cards */
-  --brand-green:#3FA34D;      /* positive trend */
-  --brand-red:#AA1927;        /* negative trend */
-  --brand-gray:#F0F5FC;       /* subtle grayish blue used in cards */
-  --bg-light:#E8F2FF;         /* very light blue used in page backgrounds */
+  --brand-dark:#0D47A1;   /* Azul principal (más intenso) */
+  --brand-light:#1976D2;  /* Azul medio para degradados/botones */
+  --brand-accent:#42A5F5; /* Azul claro de acento */
+  --brand-gray:#e6ecf7;   /* Gris azulado muy claro para fondos */
+  --brand-white:#ffffff;  /* Blanco puro */
 }
-/* Hide default Streamlit chrome */
+
 #MainMenu{visibility:hidden;}
 footer{visibility:hidden;}
-/* Increase top padding for content */
-.block-container{padding-top:0.5rem;}
+.block-container{padding-top:.5rem;}
 
-/* Global background */
-/* Global backdrop: soft blue gradient fading into white */
-body {
-  background: linear-gradient(180deg, var(--bg-light) 0%, #FFFFFF 100%) !important;
-}
-
-/* Hero section with background image overlay */
-/* Hero section adjustments: larger, more immersive and uses a blue overlay.
-   The logo will sit on top of the hero content. */
-.hero {
+/* Hero más grande con degradado y skyline animado */
+.hero{
+  background:linear-gradient(135deg, var(--brand-dark), var(--brand-light));
+  color:var(--brand-white);
+  padding:60px 40px;              /* más alto y ancho para impacto */
+  border-radius:18px;
+  box-shadow:0 12px 28px rgba(0,0,0,.15);
   position: relative;
-  color: #fff;
-  padding: 60px 40px;
-  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
-  min-height: 260px;
 }
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  /* Blue gradient overlay for improved contrast */
-  background: linear-gradient(to bottom right, rgba(11,61,145,0.65), rgba(33,99,193,0.65));
-  pointer-events: none;
+.hero h1{
+  margin:0;
+  font-size:2.8rem;               /* título más grande */
+  font-weight:900;
+  color:#fff;
+  animation: fadeDown 1s ease both;
 }
-.hero h1 {
-  position: relative;
-  margin: 0;
-  font-size: 2.4rem;
-  font-weight: 900;
-  z-index: 1;
-}
-.hero p {
-  position: relative;
-  margin-top: 0.5rem;
-  font-size: 1.2rem;
-  opacity: 0.95;
-  z-index: 1;
+.hero p{
+  margin:.75rem 0 0;
+  opacity:.95;
+  font-size:1.3rem;               /* subtítulo más grande */
+  color:#f0f0f0;
+  animation: fadeUp 1.2s ease both;
 }
 
-/* Logo inside the hero */
-.hero .logo {
-  width: 64px;
-  height: auto;
-  margin-bottom: 16px;
-  z-index: 1;
+/* Skyline animado como fondo (solo Madrid) */
+.hero::before{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:200%;
+  height:200px;
+  background:url('assets/madrid_skyline.png') repeat-x;
+  background-size:contain;
+  animation: moveSkyline 60s linear infinite;
+  opacity:0.25; /* más visible pero sin tapar texto */
 }
 
-/* KPI, card and step containers */
-.kpi, .card, .step {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* KPI, cards, steps */
+.kpi, .card, .step{
+  background:var(--brand-white);
+  border:1px solid #d0d7de;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  color:#0B132B; /* texto base más legible */
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.kpi:hover, .card:hover, .step:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-}
+.kpi h1, .card h1, .step h1 { color: var(--brand-dark); }
+.kpi strong, .card strong, .step strong { color:#0B132B; font-weight:900; }
+.kpi p, .card p, .step p { color:#444; }
 
-/* Chip styling */
-.chip {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  margin: 4px 6px 0 0;
+/* Chips */
+.chip{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  margin:4px 6px 0 0;
   background: var(--brand-gray);
-  color: #222;
-  border: 1px solid #eaeaea;
-  font-size: 0.85rem;
+  color:#0D1B2A;
+  border:1px solid #90bce7;
 }
 
-/* Fade-in animation reused for subtle entrance */
-.fade-in { animation: fade 0.3s ease both; }
-@keyframes fade {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: none; }
-}
-
-/* Slide-up animation for cards and sections */
-.slide-up { animation: slideUp 0.6s cubic-bezier(.25,.8,.25,1) both; }
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-
-/* District recommendation card */
-.district-card {
-  background: linear-gradient(160deg, #ffffff 0%, #F9FAFB 100%);
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-.district-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-}
-.district-card::after {
-  content: '';
-  position: absolute;
-  bottom: -20px;
-  right: -20px;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle at center, var(--brand-dark) 0%, transparent 70%);
-  opacity: 0.05;
-}
-.district-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.2rem; }
-.district-price { font-size: 1.8rem; font-weight: 800; }
-.district-trend { font-weight: 700; }
-
-/* Buttons */
-/* Buttons: enlarged for full‑image style options on the landing page.
-   The height and font size are increased to improve readability and touch targets.
-   All buttons inherit the primary blue colour. */
-.stButton>button {
-  background: var(--brand-dark);
+/* Botones */
+.stButton>button{
+  background: var(--brand-light);
   color: #fff;
-  border-radius: 14px;
-  border: none;
-  font-weight: 700;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border-radius:12px;
+  border:none;
+  font-weight:700;
+  padding: 0.6rem 1.2rem;
+  transition: background .2s ease;
 }
-.stButton>button:hover {
-  background: #093E8D;
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+.stButton>button:hover{
+  background: var(--brand-accent);
 }
 
-/* Option cards can reuse the button style via container width; no explicit class needed. */
-
+/* Animaciones */
+@keyframes moveSkyline {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
