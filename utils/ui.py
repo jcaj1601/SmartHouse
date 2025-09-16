@@ -1,6 +1,9 @@
 import streamlit as st
 import os, base64
 
+# ==============================
+# CSS personalizado
+# ==============================
 def inject_css():
     """Inyecta la hoja de estilos personalizada en la app."""
     try:
@@ -9,6 +12,10 @@ def inject_css():
     except FileNotFoundError:
         st.warning("⚠️ No se encontró assets/style.css. Verifica la ruta.")
 
+
+# ==============================
+# Función auxiliar para cargar imágenes en base64
+# ==============================
 def _load_base64_image(path):
     """Carga imagen desde assets y la devuelve codificada en base64."""
     if os.path.exists(path):
@@ -19,6 +26,10 @@ def _load_base64_image(path):
             return ""
     return ""
 
+
+# ==============================
+# Cabecera lateral con logos
+# ==============================
 def sidebar_header():
     """
     Inserta en la parte superior del menú lateral
@@ -43,11 +54,6 @@ def sidebar_header():
     .sidebar-logos img {
         max-height: 30px;
     }
-    @media (max-width: 600px) {
-        .sidebar-logos img {
-            max-height: 30px;
-        }
-    }
     </style>
     """
 
@@ -60,6 +66,10 @@ def sidebar_header():
 
     st.sidebar.markdown(css + logos_html, unsafe_allow_html=True)
 
+
+# ==============================
+# Hero principal con skyline y título dinámico
+# ==============================
 def hero():
     """
     Renderiza el hero con fondo skyline animado, overlay y textos dinámicos.
@@ -151,7 +161,15 @@ def hero():
     """
     st.markdown(html, unsafe_allow_html=True)
 
+
+# ==============================
+# KPIs simples
+# ==============================
 def kpi(title, value, delta=None):
+    """
+    Muestra un indicador clave (KPI) con título, valor y variación.
+    Ejemplo: Precio medio, variación % respecto al año anterior, etc.
+    """
     delta_html = ""
     if isinstance(delta, (int, float)):
         color = "#3FA34D" if delta >= 0 else "#AA1927"
@@ -169,5 +187,106 @@ def kpi(title, value, delta=None):
         unsafe_allow_html=True,
     )
 
+
+# ==============================
+# Chips para etiquetas rápidas
+# ==============================
 def chip(text):
+    """Muestra una etiqueta de texto tipo 'chip'."""
     st.markdown(f"<span class='chip'>{text}</span>", unsafe_allow_html=True)
+
+
+# ==============================
+# NUEVO: Tarjetas tipo botón (como en tu captura)
+# ==============================
+def card_buttons(precio_ciudad, distrito_caro, distrito_barato, variacion):
+    """
+    Renderiza cuatro tarjetas tipo botón (informativas y responsive).
+    Los valores se reciben como parámetros para que sean dinámicos.
+    """
+
+    css = """
+    <style>
+    .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+    }
+    .card p {
+        font-size: 13px;
+        color: gray;
+        margin: 0;
+    }
+    .card h2, .card h3 {
+        margin: 5px 0;
+        color: #2e2e2e;
+    }
+    /* Responsive: pantallas pequeñas */
+    @media (max-width: 768px) {
+        .card {
+            padding: 12px;
+        }
+        .card h2, .card h3 {
+            font-size: 1.2rem;
+        }
+        .card p {
+            font-size: 12px;
+        }
+    }
+    </style>
+    """
+
+    st.markdown(css, unsafe_allow_html=True)
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.markdown(
+            f"""
+            <div class="card">
+                <p>€/m² (ciudad)</p>
+                <h2>{precio_ciudad}</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with col2:
+        st.markdown(
+            f"""
+            <div class="card">
+                <p>Distrito más caro</p>
+                <h3>{distrito_caro}</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with col3:
+        st.markdown(
+            f"""
+            <div class="card">
+                <p>Distrito más barato</p>
+                <h3>{distrito_barato}</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with col4:
+        st.markdown(
+            f"""
+            <div class="card">
+                <p>Variación anual</p>
+                <h3>{variacion}</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
