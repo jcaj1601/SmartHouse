@@ -54,4 +54,17 @@ with row2[1]:
         st.session_state["objetivo"] = "avanzadas"
         st.switch_page("pages/6_Vistas_Avanzadas.py")
 
-st.caption("Encuentra el mejor lugar, en el mejor momento.")
+import streamlit as st
+
+st.caption(
+    """
+    <div style="text-align: center;">
+        TFM: Modelado del precio de la vivienda en Madrid: enfoque multidimensional basado en técnicas de Big Data y Machine Learning (2015–2024).
+        <br><br>
+        Máster Data Science, Big Data & Business Analytics 2024-2025.
+        <br><br>
+        UCM.
+    </div>
+    """,
+    unsafe_allow_html=True
+)

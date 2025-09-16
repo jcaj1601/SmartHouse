@@ -16,7 +16,7 @@ footer{visibility:hidden;}
   color:var(--brand-white);
   padding:60px 40px;              /* más alto y ancho para impacto */
   border-radius:18px;
-  box-shadow:0 12px 28px rgba(0,0,0,.15);
+  box-shadow:0 12px 28px rgba(0, 0, 0, 0.068);
   position: relative;
   overflow: hidden;
 }
