@@ -40,5 +40,3 @@ Esto generará en `models/`:
 
 ## Nota sobre BARRIO/DISTRITO
 - `columns.json` original incluye `DISTRITO_x` y `BARRIO`. Si sólo usas *distrito*, puedes mapear `BARRIO = Distrito` (dummy) o usar `catalogo_distritos_barrios.csv` para seleccionar un barrio válido.
-
-¡Listo para lucir tu TFM con un flujo **intuitivo, suave y visual** y una calculadora **con confianza cuantificada**! 🎯
