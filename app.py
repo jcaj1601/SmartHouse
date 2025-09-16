@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.ui import inject_css, hero, kpi
+from utils.ui import inject_css, hero, kpi, sidebar_header
 
 # Configuración inicial de la app
 st.set_page_config(
@@ -8,6 +8,9 @@ st.set_page_config(
     layout="wide",
     page_icon="🧭"
 )
+
+# Mostrar logos en la cabecera del menú lateral
+sidebar_header()
 
 # Inyecta estilos personalizados
 inject_css()
