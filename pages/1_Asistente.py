@@ -216,7 +216,7 @@ else:
 # Paso 4: Proyección + salto a Calculadora
 # ==============================
 st.markdown("---")
-st.subheader("④ Momento ideal y proyección (demo)")
+st.subheader("④ Momento ideal y proyección")
 
 # Distrito preseleccionado: prioridad al flujo del objetivo
 if objetivo == "comprar":
@@ -247,7 +247,7 @@ with c1:
 
 with c2:
     st.download_button(
-        "📥 Descargar resumen (CSV - demo)",
+        "📥 Descargar resumen (CSV)",
         data=df.to_csv(index=False).encode(),
         file_name="resumen_asistente.csv",
         use_container_width=True

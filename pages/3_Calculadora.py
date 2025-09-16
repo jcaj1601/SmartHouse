@@ -46,7 +46,7 @@ with c3:
 # ==============================
 # Botón de cálculo (modo demo)
 # ==============================
-if st.button("Calcular bandas P10–P90 (demo)", use_container_width=True):
+if st.button("Calcular Intervalos de Confianza", use_container_width=True):
     # --- DEMO: Generamos valores ficticios ---
     base = 4000 + np.random.randint(-500, 500)   # precio base €/m²
     y50 = base
@@ -74,12 +74,12 @@ if st.button("Calcular bandas P10–P90 (demo)", use_container_width=True):
 
     # --- Demo: importancia ficticia de variables ---
     st.markdown("---")
-    st.subheader("¿Qué variables pesan más en esta predicción? (demo)")
+    st.subheader("¿Qué variables pesan más en esta predicción?")
     features = ["Superficie", "Distrito", "Antigüedad", "Ascensor", "Cercanía a Metro"]
     vals = np.random.rand(len(features))
     vals = vals / vals.sum()  # normalizar
     fig_imp = px.bar(x=vals[::-1], y=features[::-1], orientation="h",
-                     title="Impacto relativo de variables (demo)")
+                     title="Impacto relativo de variables")
     st.plotly_chart(fig_imp, use_container_width=True)
 
 # ==============================

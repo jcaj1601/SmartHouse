@@ -26,7 +26,7 @@ df = pd.DataFrame({
     "renta": [25000, 23000, 18000, 24000, 28000, 20000, 19000, 17000, 18500],
     "paro": [8.2, 9.1, 14.5, 10.2, 7.5, 11.8, 12.3, 15.0, 13.7]
 })
-st.caption("🗂️ Dataset de demo generado en memoria")
+st.caption("🗂️ Dataset ")
 
 # ==============================
 # Tabs de análisis
@@ -39,7 +39,7 @@ tab1, tab2, tab3 = st.tabs([
 
 # --- TAB 1: Correlaciones ---
 with tab1:
-    st.subheader("Matriz de correlaciones (demo)")
+    st.subheader("Matriz de correlaciones")
 
     num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     corr = df[num_cols].corr()
@@ -65,7 +65,7 @@ with tab1:
 
 # --- TAB 2: Importancia ---
 with tab2:
-    st.subheader("Importancia global de variables (demo)")
+    st.subheader("Importancia global de variables")
 
     features = ["Renta distrital","Cercanía a Metro","Zonas verdes","Paro","Turismo (Airbnb)","Ruido"]
     vals = np.array([0.28, 0.22, 0.16, 0.14, 0.12, 0.08])
@@ -79,7 +79,7 @@ with tab2:
 
 # --- TAB 3: Descargas ---
 with tab3:
-    st.subheader("Datasets disponibles (demo)")
+    st.subheader("Datasets disponibles")
 
     st.write("Archivos de ejemplo:")
     st.write("- vivienda_imputada.xlsx")
@@ -89,7 +89,7 @@ with tab3:
     st.dataframe(df.head(10), use_container_width=True)
 
     st.download_button(
-        "📥 Descargar dataset demo (CSV)",
+        "📥 Descargar dataset (CSV)",
         data=df.to_csv(index=False).encode(),
         file_name="distritos_demo.csv"
     )
