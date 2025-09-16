@@ -1,109 +1,254 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 from utils.ui import inject_css, chip
 
-st.set_page_config(page_title="Flujo Usuario", layout="wide", page_icon="🧭")
+# ==============================
+# Configuración inicial
+# ==============================
+st.set_page_config(page_title="Asistente", layout="wide", page_icon="🧭")
 inject_css()
-st.title("Asistente — Encuentra tu mejor lugar y momento")
+st.title("")
+st.title("Asistente: Encuentra tu mejor lugar y momento")
 
-if "objetivo" not in st.session_state:
-    st.session_state["objetivo"] = "comprar"
-st.write(f"**Objetivo:** {st.session_state['objetivo'].capitalize()}")
+# ==============================
+# Helpers
+# ==============================
+def semaforo_color(valor: float) -> tuple[str, str]:
+    """
+    Devuelve (color_hex, emoji) según variación interanual.
+    > 2%: verde, ~ estable: amarillo, < -0.3%: rojo
+    """
+    if valor > 2:
+        return "#3FA34D", "🟢"
+    elif valor > -0.3:
+        return "#E1A500", "🟡"
+    return "#AA1927", "🔴"
 
-# Paso 1: preferencias
-# Paso 1: preferencias
-with st.expander("① Presupuesto y necesidades", expanded=True):
-    c1, c2 = st.columns([2,1])
-    with c1:
-        presupuesto = st.slider("Presupuesto máximo (€)", 120000, 1200000, 350000, 10000)
-        habitaciones = st.selectbox("Habitaciones", [1,2,3,4], index=1)
-        prioridades = st.multiselect(
-            "Prioridades",
-            ["Precio bajo", "Zonas verdes", "Transporte", "Seguridad", "Inversión"],
-            default=["Precio bajo", "Transporte"],
-        )
-        st.write("**Tus prioridades:**")
-        for p in prioridades:
-            chip(p)
-    with c2:
-        st.info(
-            "Ajusta tus prioridades para perfilar la búsqueda. Te mostraremos zonas que encajan con tu perfil y presupuesto."
-        )
+def tarjetas_recomendacion(df_top: pd.DataFrame):
+    cols = st.columns(len(df_top))
+    for i, (_, row) in enumerate(df_top.iterrows()):
+        color, emoji = semaforo_color(float(row["variacion_interanual"]))
+        with cols[i]:
+            st.markdown(
+                f"""
+                <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;text-align:center;background:#fff">
+                    <div style="font-weight:800;font-size:1.05rem">{emoji} {row['distrito']}</div>
+                    <div style="margin-top:6px;font-size:1.1rem"><b>{int(row['precio_m2']):,} €/m²</b></div>
+                    <div style="margin-top:4px;color:{color}">{row['variacion_interanual']}% tendencia</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            # Microserie demo
+            y = np.cumsum(np.random.randn(24)) * 5 + row["precio_m2"]
+            fig = px.line(x=list(range(24)), y=y, labels={"x": "meses", "y": "€/m²"})
+            fig.update_layout(height=120, margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig, use_container_width=True)
 
-# Paso 2: recomendaciones (demo con CSV de distritos_madrid_coords si existe)
+def proyeccion_demo(base: float, titulo: str):
+    meses = np.arange(0, 24)
+    trend = base * (1 + 0.002 * meses)  # demo
+    noise = np.linspace(-80, 80, 24)
+    p50 = trend + noise
+    p10, p90 = p50 - 150, p50 + 150
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=meses, y=p90, mode="lines", name="P90", line=dict(width=1)))
+    fig.add_trace(go.Scatter(x=meses, y=p10, mode="lines", name="P10", line=dict(width=1), fill=None))
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([meses, meses[::-1]]),
+        y=np.concatenate([p90, p10[::-1]]),
+        fill="toself", name="Banda P10–P90", opacity=0.15, line=dict(width=0)
+    ))
+    fig.add_trace(go.Scatter(x=meses, y=p50, mode="lines", name="P50", line=dict(width=2)))
+    fig.update_layout(title=titulo, xaxis_title="Meses", yaxis_title="€/m²", height=380, margin=dict(l=0,r=0,t=40,b=0))
+    st.plotly_chart(fig, use_container_width=True)
+
+# ==============================
+# Selección de objetivo (persistente)
+# ==============================
+st.markdown("### ¿Cuál es tu objetivo?")
+objetivo = st.radio(
+    "Selecciona una opción:",
+    ["comprar", "vender", "explorar"],
+    horizontal=True,
+    index=["comprar", "vender", "explorar"].index(st.session_state.get("objetivo", "comprar"))
+)
+st.session_state["objetivo"] = objetivo
+st.write(f"**Has elegido:** {objetivo.capitalize()}")
+
+# ==============================
+# Paso 1: Perfilado inicial (dinámico)
+# ==============================
+with st.expander("① Perfilado inicial", expanded=True):
+    c1, c2 = st.columns([2, 1])
+
+    if objetivo == "comprar":
+        with c1:
+            presupuesto = st.slider("Presupuesto máximo (€)", 120_000, 1_200_000, 350_000, 10_000)
+            habitaciones = st.selectbox("Habitaciones", [1, 2, 3, 4], index=1)
+            prioridades = st.multiselect(
+                "Prioridades", ["Precio bajo", "Zonas verdes", "Transporte", "Seguridad", "Inversión"],
+                default=["Precio bajo", "Transporte"]
+            )
+            st.write("**Tus prioridades:**")
+            for p in prioridades: chip(p)
+        with c2:
+            st.info("Te recomendaremos distritos en función de tu presupuesto y prioridades.")
+
+    elif objetivo == "vender":
+        with c1:
+            distrito_v = st.selectbox(
+                "¿En qué distrito está tu vivienda?",
+                [
+                    "Centro","Arganzuela","Retiro","Salamanca","Chamartín","Tetuán",
+                    "Chamberí","Carabanchel","Usera","Puente de Vallecas","Latina","Hortaleza"
+                ]
+            )
+            superficie = st.number_input("Superficie (m²)", 20, 400, 85)
+            antiguedad = st.slider("Antigüedad (años)", 0, 120, 35)
+            ascensor = st.selectbox("Ascensor", ["Sí", "No"], index=0)
+        with c2:
+            st.info("Analizaremos el mercado de tu zona y te diremos si es buen momento para vender.")
+
+    else:  # explorar
+        with c1:
+            criterios = st.multiselect(
+                "¿Qué quieres explorar?",
+                ["Distritos más caros", "Distritos más baratos", "Mayor crecimiento", "Mejor relación €/m² vs renta"],
+                default=["Mayor crecimiento"]
+            )
+            st.write("**Criterios seleccionados:**")
+            for c in criterios: chip(c)
+        with c2:
+            st.info("Explora el mercado por criterios y compara zonas en un clic.")
+
+# ==============================
+# DEMO: Datos sintéticos de distritos
+# ==============================
+df = pd.DataFrame({
+    "distrito": [
+        "Chamartín","Hortaleza","Puente de Vallecas","Arganzuela",
+        "Centro","Tetuán","Carabanchel","Usera","Latina"
+    ],
+    "precio_m2": [4650, 3970, 2120, 4300, 5200, 3600, 2950, 2700, 3100],
+    "variacion_interanual": [5.2, 1.8, -0.5, 3.1, 4.7, 0.9, 1.2, -0.8, 0.5]
+})
+
+# ==============================
+# Paso 2: Recomendaciones / Análisis inicial (condicional)
+# ==============================
 st.markdown("---")
-st.subheader("② Recomendaciones")
-try:
-    df = pd.read_csv("data/distritos_madrid_coords.csv")
-except Exception:
-    df = pd.DataFrame({
-        "distrito":["Chamartín","Hortaleza","Puente de Vallecas","Arganzuela","Centro","Tetuán"],
-        "precio_m2":[4650,3970,2120,4300,5200,3600],
-        "variacion_interanual":[5.2,1.8,-0.5,3.1,4.7,0.9],
-        "lat":[40.449,40.478,40.387,40.399,40.418,40.458],
-        "lon":[-3.677,-3.642,-3.659,-3.700,-3.703,-3.703]
-    })
 
-df["score"] = (df["variacion_interanual"].rank(ascending=False) + df["precio_m2"].rank(ascending=True))
-df_top = df.sort_values("score").head(3)
+if objetivo == "comprar":
+    st.subheader("② Recomendaciones de compra")
+    # Ranking: barato + mejor tendencia
+    df["score"] = (df["variacion_interanual"].rank(ascending=False) + df["precio_m2"].rank(ascending=True))
+    df_top = df.sort_values("score").head(3)
+    tarjetas_recomendacion(df_top)
 
-cards = st.columns(3)
-for i, (_, row) in enumerate(df_top.iterrows()):
-    with cards[i]:
-        # Determine colour of trend (green/up, yellow/flat, red/down)
-        color = (
-            "#3FA34D"
-            if row["variacion_interanual"] > 2
-            else ("#E1A500" if row["variacion_interanual"] > -0.3 else "#AA1927")
-        )
-        # Render a custom card with slide up and incremental delays
-        st.markdown(
-            f"""
-            <div class="district-card slide-up delay-{i+1}">
-              <div class="district-name">{row['distrito']}</div>
-              <div class="district-price">{int(row['precio_m2']):,} €/m²</div>
-              <div class="district-trend" style="color:{color};">{row['variacion_interanual']}% tendencia</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        # Generate a small synthetic trend line for the card below
-        y = np.cumsum(np.random.randn(24)) * 5 + row["precio_m2"]
-        fig = px.line(
-            x=list(range(24)),
-            y=y,
-            labels={"x": "meses", "y": "€/m²"},
-        )
-        fig.update_layout(height=120, margin=dict(l=0, r=0, t=0, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+elif objetivo == "vender":
+    st.subheader("② Análisis de tu distrito")
+    # Usa el distrito seleccionado arriba (si no, toma primero)
+    distrito_sel = locals().get("distrito_v", df["distrito"].iloc[0])
+    row = df.loc[df["distrito"] == distrito_sel].head(1)
+    if row.empty:
+        st.warning("No hay datos para el distrito seleccionado; usando valores de demo.")
+        precio_base, variacion = 4000.0, 0.0
+    else:
+        precio_base = float(row["precio_m2"].values[0])
+        variacion = float(row["variacion_interanual"].values[0])
+    color, emoji = semaforo_color(variacion)
+    st.metric(label=f"Precio medio en {distrito_sel}", value=f"{precio_base:,.0f} €/m²", delta=f"{variacion}%")
+    st.info(f"{emoji} Estado del mercado en {distrito_sel} — "
+            + ("alza: buen momento para vender." if emoji=="🟢" else "estable." if emoji=="🟡" else "a la baja: quizá conviene esperar."))
 
-# Paso 3: Cuándo — Momento ideal con banda (demo de proyección sintética)
+else:  # explorar
+    st.subheader("② Distritos destacados")
+    # Ejemplo: top por €/m² con color por variación (semáforo continuo)
+    df_sorted = df.sort_values("precio_m2", ascending=False).head(6)
+    fig_bar = px.bar(df_sorted, x="distrito", y="precio_m2", color="variacion_interanual",
+                     title="Top distritos por €/m²", color_continuous_scale="RdYlGn")
+    st.plotly_chart(fig_bar, use_container_width=True)
+    st.caption("Escala de color: verde=crece, amarillo=estable, rojo=cae.")
+
+# ==============================
+# Paso 3: Comparador integrado (siempre visible, contextual)
+# ==============================
 st.markdown("---")
-st.subheader("③ Momento ideal (demo)")
-sel = st.selectbox("Ver proyección para:", df_top["distrito"].tolist())
-base = float(df.loc[df["distrito"]==sel,"precio_m2"].iloc[0]) if sel in df["distrito"].values else 4000.0
-meses = np.arange(0,24)
-trend = base*(1+0.002*meses)  # demo
-noise = np.linspace(-80,80,24)
-p50 = trend + noise
-p10 = p50 - 150
-p90 = p50 + 150
+st.subheader("③ Comparar distritos")
 
-fig2 = px.line(x=meses, y=p50, labels={"x":"Meses adelante","y":"€/m²"}, title=f"Proyección {sel} (P10–P90)")
-fig2.add_traces([px.line(x=meses, y=p10).data[0], px.line(x=meses, y=p90).data[0]])
-fig2.update_traces(showlegend=False)
-fig2.add_traces(px.area(x=list(meses)+list(meses[::-1]), y=list(p90)+list(p10[::-1])).update_traces(opacity=0.15).data)
-st.plotly_chart(fig2, use_container_width=True)
-st.info("En producción: esta banda vendrá de tus modelos cuantílicos (P10, P50, P90) por distrito o de un modelo panel.")
+# Sugerencias por defecto según objetivo
+if objetivo == "comprar":
+    sugeridos = df.sort_values("score").head(3)["distrito"].tolist() if "score" in df.columns else df["distrito"].head(3).tolist()
+elif objetivo == "vender":
+    sugeridos = [locals().get("distrito_v", df["distrito"].iloc[0])]
+else:
+    sugeridos = df.sort_values("precio_m2", ascending=False).head(3)["distrito"].tolist()
 
+seleccion = st.multiselect(
+    "Selecciona uno o más distritos para comparar",
+    options=df["distrito"].tolist(),
+    default=sugeridos
+)
+
+if seleccion:
+    df_sel = df[df["distrito"].isin(seleccion)].copy()
+    # Tabla comparativa con semáforo textual
+    df_sel["semaforo"] = df_sel["variacion_interanual"].apply(
+        lambda v: "🟢" if v > 2 else ("🟡" if v > -0.3 else "🔴")
+    )
+    st.dataframe(df_sel[["distrito","precio_m2","variacion_interanual","semaforo"]]
+                 .rename(columns={"precio_m2":"€/m²","variacion_interanual":"variación %"}),
+                 use_container_width=True)
+
+    # Barras €/m²
+    fig_comp = px.bar(df_sel, x="distrito", y="precio_m2", color="variacion_interanual",
+                      title="Comparativa €/m² (color por variación %)", color_continuous_scale="RdYlGn")
+    st.plotly_chart(fig_comp, use_container_width=True)
+else:
+    st.info("Selecciona al menos un distrito para comparar.")
+
+# ==============================
+# Paso 4: Proyección + salto a Calculadora
+# ==============================
 st.markdown("---")
+st.subheader("④ Momento ideal y proyección (demo)")
+
+# Distrito preseleccionado: prioridad al flujo del objetivo
+if objetivo == "comprar":
+    base_df = df.sort_values("score") if "score" in df.columns else df.copy()
+    default_distrito = base_df["distrito"].iloc[0]
+elif objetivo == "vender":
+    default_distrito = locals().get("distrito_v", df["distrito"].iloc[0])
+else:
+    default_distrito = seleccion[0] if seleccion else df["distrito"].iloc[0]
+
+sel = st.selectbox("Ver proyección para:", df["distrito"].tolist(),
+                   index=df["distrito"].tolist().index(default_distrito) if default_distrito in df["distrito"].tolist() else 0)
+
+base_precio = float(df.loc[df["distrito"]==sel,"precio_m2"].iloc[0]) if sel in df["distrito"].values else 4000.0
+proyeccion_demo(base_precio, f"Proyección en {sel} (P10–P90 • demo)")
+st.info("Intervalos de confianza ( % 10, % 50, % 90).")
+
 c1, c2 = st.columns(2)
 with c1:
-    if st.button("📥 Descargar recomendaciones (PDF/CSV)", use_container_width=True):
-        st.success("Descarga generada (demo).")
+    if st.button("🔮 Proyectar en Calculadora Personalizada", use_container_width=True):
+        # Prefill para Calculadora
+        st.session_state["selected_distrito"] = sel
+        if objetivo == "vender":
+            st.session_state["calc_superficie"] = locals().get("superficie", 85)
+            st.session_state["calc_antiguedad"] = locals().get("antiguedad", 35)
+            st.session_state["calc_ascensor"] = 1 if locals().get("ascensor","Sí") == "Sí" else 0
+        st.switch_page("pages/3_Calculadora.py")
+
 with c2:
-    if st.button("🔍 Pasar a Calculadora con bandas", use_container_width=True):
-        st.switch_page("pages/3_Calculadora_Bandas.py")
+    st.download_button(
+        "📥 Descargar resumen (CSV - demo)",
+        data=df.to_csv(index=False).encode(),
+        file_name="resumen_asistente.csv",
+        use_container_width=True
+    )

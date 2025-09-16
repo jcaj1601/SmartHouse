@@ -3,75 +3,66 @@ import pandas as pd
 from utils.ui import inject_css, hero, kpi, sidebar_header, card_buttons
 
 # ==============================
-# Configuración inicial de la app
+# Configuración inicial
 # ==============================
-st.set_page_config(
-    page_title="Smart Housing Madrid",
-    layout="wide",
-    page_icon="🧭"
-)
+st.set_page_config(page_title="Smart Housing Madrid", layout="wide", page_icon="🧭")
 
 # ==============================
-# Mostrar logos en la cabecera del menú lateral
+# Branding lateral + CSS
 # ==============================
 sidebar_header()
-
-# ==============================
-# Inyecta estilos personalizados
-# ==============================
 inject_css()
 
 # ==============================
-# Renderiza el encabezado principal (hero con skyline)
+# Encabezado principal (hero)
 # ==============================
 hero()
 
-
 # ==============================
-# Nueva sección de tarjetas tipo botón (visual más moderno)
+# Tarjetas-resumen (valores dinámicos)
 # ==============================
 st.markdown("## Conoce el mercado ⬇️")
-
-# valores del DataFrame
 precio_ciudad = "4.120"
 distrito_caro = "Centro"
 distrito_barato = "Puente de Vallecas"
 variacion = "3.2%"
-
-# <- renderiza las cuatro tarjetas alineadas
 card_buttons(precio_ciudad, distrito_caro, distrito_barato, variacion)
 
+st.markdown("---")
+
 # ==============================
-# Opciones principales: botones grandes de navegación
+# Helper de navegación
+# ==============================
+def go(page_path: str, objetivo: str | None = None):
+    """
+    Navega a una página multipage y opcionalmente marca 'objetivo'
+    para personalizar el hero y/o el flujo.
+    """
+    if objetivo:
+        st.session_state["objetivo"] = objetivo
+    st.switch_page(page_path)
+
+# ==============================
+# CTAs principales (flujo natural)
 # ==============================
 st.subheader("¿Qué quieres hacer hoy?")
+cta = st.columns(3)
 
-# Primera fila de botones
-row1 = st.columns(2)
-with row1[0]:
-    if st.button("🏠 Comprar:  Encuentra tu hogar", key="buy", use_container_width=True):
-        st.session_state["objetivo"] = "comprar"
-        st.switch_page("pages/1_Asistente.py")
+with cta[0]:
+    if st.button("🧭 Asistente guiado", use_container_width=True):
+        # El asistente define por defecto 'comprar' si no hay objetivo en sesión
+        go("pages/1_Asistente.py", objetivo=None)
 
-with row1[1]:
-    if st.button("📈 Vender:  Valora tu propiedad", key="sell", use_container_width=True):
-        st.session_state["objetivo"] = "vender"
-        st.switch_page("pages/1_Asistente.py")
+with cta[1]:
+    if st.button("🧮 Calculadora", use_container_width=True):
+        go("pages/3_Calculadora.py")
 
-# Segunda fila de botones
-row2 = st.columns(2)
-with row2[0]:
-    if st.button("🗺️ Explorar:  Descubre zonas", key="explore", use_container_width=True):
-        st.session_state["objetivo"] = "explorar"
-        st.switch_page("pages/1_Asistente.py")
-
-with row2[1]:
-    if st.button("🔬 Modo avanzado: Análisis profundo", key="advanced_views", use_container_width=True):
-        st.session_state["objetivo"] = "avanzadas"
-        st.switch_page("pages/6_Vistas_Avanzadas.py")
+with cta[2]:
+    if st.button("🔬 Análisis avanzado", use_container_width=True):
+        go("pages/4_Modo_Avanzado.py")
 
 # ==============================
-# Pie de página (créditos académicos del TFM)
+# Pie de página académico
 # ==============================
 st.caption(
     """
