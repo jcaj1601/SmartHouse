@@ -42,7 +42,7 @@ def hero():
         subtitle = "Analiza en profundidad con datos completos."
     else:
         title = ""
-        subtitle = "Encuentra el mejor lugar, en el mejor momento — con datos."
+        subtitle = "Encuentra el mejor lugar, en el mejor momento."
 
     # --- Fondos ---
     base_dir = os.path.dirname(os.path.abspath(__file__))
