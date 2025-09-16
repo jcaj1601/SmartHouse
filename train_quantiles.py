@@ -57,7 +57,7 @@ def fit_quantile(alpha):
     model.fit(X_train, y_train)
     pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, pred)
-    rmse = mean_squared_error(y_test, pred, squared=False)
+    rmse = np.sqrt(mean_squared_error(y_test, pred))
     r2 = r2_score(y_test, pred)
     print(f"alpha={alpha} | MAE={mae:.2f} | RMSE={rmse:.2f} | R2={r2:.3f}")
     return model
