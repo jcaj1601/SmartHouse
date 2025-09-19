@@ -22,10 +22,10 @@ hero()
 # Tarjetas-resumen (valores dinámicos)
 # ==============================
 st.markdown("## Conoce el mercado ⬇️")
-precio_ciudad = "4.120"
-distrito_caro = "Centro"
-distrito_barato = "Puente de Vallecas"
-variacion = "3.2%"
+precio_ciudad = "3.351"
+distrito_caro = "Salamanca"
+distrito_barato = "Villaverde"
+variacion = "%"
 card_buttons(precio_ciudad, distrito_caro, distrito_barato, variacion)
 
 st.markdown("---")
